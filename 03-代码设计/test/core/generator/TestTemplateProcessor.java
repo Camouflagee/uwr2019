@@ -30,6 +30,7 @@ public class TestTemplateProcessor implements DataSourceType{
 
 		//设置待测试类的状态（测试目标方法）
 		tp.staticVarExtract("resource/newtemplatezzz.doc");
+
 		//以下进行检查点设置
 		DataSource ds = dsc.getConstDataSource();
 
@@ -65,22 +66,35 @@ public class TestTemplateProcessor implements DataSourceType{
 		//4. 录制该静态Mock的行为模式（针对的是静态方法）；
         //------------------------------------------------
         //以上流程请在这里实现：
+
 		dsc =EasyMock.createMock(DataSourceConfig.class);
 		ConstDataSource ds=EasyMock.createMock(ConstDataSource.class);
+		DataHolder dh1= EasyMock.createMock(DataHolder.class);
+        DataHolder dh2= EasyMock.createMock(DataHolder.class);
+        DataHolder dh3= EasyMock.createMock(DataHolder.class);
 		EasyMock.expect(dsc.getConstDataSource()).andReturn(ds);
-		
-        EasyMock.expect(ds.getDataHolder("sex")).andReturn(holder);
+		//DataHolder dhs=EasyMock.createMock(DataHolder.class);
+        EasyMock.expect(ds.getDataHolder("sex")).andReturn(dh1);
+        EasyMock.expect(ds.getDataHolder("readme")).andReturn(dh2);
+        EasyMock.expect(ds.getDataHolder("testexpr")).andReturn(dh3);
+        EasyMock.expect(dh1.getValue()).andReturn("Female");
+        EasyMock.expect(dh2.getValue()).andReturn("5");
+        EasyMock.expect(dh3.getValue()).andReturn("${num}+${readme}");
+        EasyMock.expect(dh3.fillValue()).andReturn("");
+        EasyMock.expect(dh3.getValue()).andReturn("5");
+
 		//java.util.ArrayList<core.common.DataSource>
-		EasyMock.verify(dsc);
+
 		EasyMock.replay(dsc);
-		//
-        //
-        // 这里写代码
-        //
-        //------------------------------------------------
+        EasyMock.replay(dh1);
+        EasyMock.replay(dh2);
+        EasyMock.replay(dh3);
+        EasyMock.replay(ds);
 		//5. 重放所有的行为。
 		PowerMock.mockStatic(DataSourceConfig.class);
-	    PowerMock.replayAll(dsc);
+        DataSourceConfig.newInstance();
+        PowerMock.expectLastCall();
+	    PowerMock.replayAll();
 		//初始化一个待测试类（SUT）的实例
 		tp = new TemplateProcessor();
 	}
